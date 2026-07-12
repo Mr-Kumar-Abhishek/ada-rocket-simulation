@@ -15,5 +15,13 @@ begin
    -- Test Dot Product
    pragma Assert (Dot_Product (V1, V2) = 32.0, "Dot Product failed");
 
+   -- Test Scalar Multiplication
+   V3 := 2.0 * V1;
+   pragma Assert (V3.X = 2.0 and V3.Y = 4.0 and V3.Z = 6.0, "Scalar Multiplication failed");
+
+   -- Test Cross Product
+   V3 := Cross_Product (V1, V2);
+   pragma Assert (V3.X = -3.0 and V3.Y = 6.0 and V3.Z = -3.0, "Cross Product failed");
+
    Put_Line ("All Math Tests Passed!");
 end Test_Math;
