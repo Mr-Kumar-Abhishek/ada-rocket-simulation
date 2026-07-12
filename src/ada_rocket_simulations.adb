@@ -94,6 +94,8 @@ procedure Ada_Rocket_Simulations is
       Flight_State : State :=
         (Position => (0.0, 0.0, 0.0),
          Velocity => (0.0, 0.0, 0.0),
+         Orientation => Identity_Quaternion,
+         Angular_Velocity => (0.0, 0.0, 0.0),
          Time => 0.0);
    begin
       Put_Line ("Running Simulation Tests...");
@@ -147,7 +149,7 @@ procedure Ada_Rocket_Simulations is
       Payload : aliased Mass_Object;
       Tube    : aliased Body_Tube;
       Chute   : aliased Parachute;
-      Flight_State : State := (Position => (0.0, 0.0, 0.0), Velocity => (0.0, 0.0, 0.0), Time => 0.0);
+      Flight_State : State := (Position => (0.0, 0.0, 0.0), Velocity => (0.0, 0.0, 0.0), Orientation => Identity_Quaternion, Angular_Velocity => (0.0, 0.0, 0.0), Time => 0.0);
    begin
       Put_Line ("Running Recovery System Tests...");
 
