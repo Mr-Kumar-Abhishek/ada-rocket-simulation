@@ -25,10 +25,23 @@ To compile and run this project, you need the Alire package manager.
    cd ada-rocket-simulations
    ```
 
-2. Run the main executable, which currently serves as the TDD suite runner validating the physics engine:
-   ```bash
-   alr run
-   ```
+2. Run the executable. It supports three modes:
+
+   - **TDD Test Runner** (default):
+     ```bash
+     alr run -- --test
+     ```
+   
+   - **Load Rocket & Simulate** (from XML):
+     ```bash
+     alr run -- --rocket test_rocket.xml
+     ```
+
+   - **Load Rocket & Output Custom CSV**:
+     ```bash
+     alr run -- --rocket test_rocket.xml --output flight_data.csv
+     ```
+   
    *Note: On the very first run, Alire will fetch and set up the GNAT toolchain, which may take some time depending on your connection.*
 
 ## Documentation

@@ -28,21 +28,25 @@ Each component can calculate its own mass, CG, and aerodynamic coefficients, whi
 The `Aerodynamics` module provides functions to calculate the Normal Force Coefficient (C_N) and Center of Pressure (CP) for various components based on Barrowman's equations.
 
 ### 3.3 Physics Engine (6-DOF)
-The `Simulation` module uses a numerical integrator (e.g., Runge-Kutta 4th order) to step through time.
+The `Simulation` module uses a Simple Euler numerical integrator to step through time.
 - State vector includes: Position (3D), Velocity (3D), Orientation (Quaternion), Angular Velocity (3D).
 - Forces considered: Thrust, Gravity, Aerodynamic Drag, Aerodynamic Lift/Normal Force.
+- Moments considered: Weathercocking Restoring Moment, Aerodynamic Damping.
 
 ### 3.4 Motor Subsystem
-The `Motors` module parses motor data files and provides thrust vs. time interpolation.
+The `Motors` module parses `.eng` RASP motor data files and provides thrust vs. time interpolation and mass tracking.
+
+### 3.5 Parsers & Interface
+The `Parser` module loads XML configuration files directly into the in-memory Component tree. The main executable acts as a robust CLI, allowing users to parse, load, and dynamically simulate any configuration.
 
 ## 4. Ada-Specific Design Considerations
-- **Strong Typing:** Use distinct types for physical units (e.g., `Meters`, `Kilograms`, `Newtons`) to prevent unit mismatch errors at compile time.
+- **Strong Typing:** Use distinct types for physical units to prevent unit mismatch errors.
 - **Tagged Types & Polymorphism:** Used for the component tree to allow dynamic dispatching of `Get_Mass` and `Get_CP` functions.
-- **Contracts:** Leverage Ada 2012 pre-conditions and post-conditions extensively in the Math and Physics engines to guarantee correctness (e.g., ensuring mass is always strictly positive).
 - **Package Hierarchy:**
-  - `OpenRocket.Core`
-  - `OpenRocket.Math`
-  - `OpenRocket.Aerodynamics`
-  - `OpenRocket.Simulation`
-  - `OpenRocket.IO`
-  - `OpenRocket.Data_Logger` (CSV export)
+  - `Components`
+  - `Math`
+  - `Aerodynamics`
+  - `Simulation`
+  - `Parser`
+  - `Motors`
+  - `Data_Logger`
