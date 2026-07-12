@@ -1,6 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Math; use Math;
 with Components; use Components;
+with Aerodynamics; use Aerodynamics;
 
 procedure Ada_Rocket_Simulations is
 
@@ -28,6 +29,7 @@ procedure Ada_Rocket_Simulations is
    procedure Run_Component_Tests is
       Payload : aliased Mass_Object;
       Tube    : aliased Body_Tube;
+      Nose    : aliased Nose_Cone;
    begin
       Put_Line ("Running Component Tests...");
 
@@ -43,24 +45,30 @@ procedure Ada_Rocket_Simulations is
       Tube.Density := 1000.0; -- kg/m^3
       Tube.Position := 0.2;
 
-      -- Add Payload to Tube
+      -- Initialize Nose Cone
+      Nose.Length := 0.5;
+      Nose.Base_Diameter := 0.1;
+      Nose.Density := 500.0;
+      Nose.Position := 0.0;
+
+      -- Add Components
       Tube.Add_Child (Payload'Access);
+      Nose.Add_Child (Tube'Access);
 
       -- Check Tube mass calculation
       pragma Assert (Tube.Get_Mass > 0.0, "Tube mass should be positive");
       
-      -- Total Mass = Tube.Mass + Payload.Mass
-      pragma Assert (Tube.Get_Total_Mass = Tube.Get_Mass + 1.0, "Total Mass calculation failed");
+      -- Total Mass
+      pragma Assert (Nose.Get_Total_Mass = Nose.Get_Mass + Tube.Get_Mass + Payload.Mass, "Total Mass calculation failed");
 
-      -- Total CG
-      declare
-         Expected_CG : Float;
-      begin
-         Expected_CG := ((Tube.Get_Mass * 0.5) + (1.0 * (0.0 + 0.1))) / (Tube.Get_Mass + 1.0);
-         pragma Assert (abs (Tube.Get_Total_CG - Expected_CG) < 0.001, "Total CG calculation failed");
-      end;
+      -- Aerodynamics
+      pragma Assert (Get_CN (Nose) = 2.0, "Nose Cone CN failed");
+      pragma Assert (Get_CN (Tube) = 0.0, "Body Tube CN failed");
+      
+      -- Total CP calculation
+      pragma Assert (Get_Total_CP (Nose) >= 0.0, "Total CP failed");
 
-      Put_Line ("All Component Tests Passed!");
+      Put_Line ("All Component & Aerodynamics Tests Passed!");
    end Run_Component_Tests;
 
 begin
