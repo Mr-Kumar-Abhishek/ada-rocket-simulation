@@ -14,6 +14,7 @@ package body Parser is
 
       Parsing_Nose_Cone : Boolean := False;
       Parsing_Body_Tube : Boolean := False;
+      Parsing_Parachute : Boolean := False;
 
       Current_Component : Component_Access := null;
 
@@ -45,15 +46,23 @@ package body Parser is
             if Index (Current_Line, "<NoseCone>") > 0 then
                Parsing_Nose_Cone := True;
                Parsing_Body_Tube := False;
+               Parsing_Parachute := False;
                Current_Component := new Nose_Cone;
                Current_Component.Name := "Nose Cone                       ";
                Nose_Cone(Current_Component.all).Density := 200.0;
             elsif Index (Current_Line, "<BodyTube>") > 0 then
                Parsing_Body_Tube := True;
                Parsing_Nose_Cone := False;
+               Parsing_Parachute := False;
                Current_Component := new Body_Tube;
                Current_Component.Name := "Body Tube                       ";
                Body_Tube(Current_Component.all).Density := 1000.0;
+            elsif Index (Current_Line, "<Parachute>") > 0 then
+               Parsing_Parachute := True;
+               Parsing_Body_Tube := False;
+               Parsing_Nose_Cone := False;
+               Current_Component := new Parachute;
+               Current_Component.Name := "Parachute                       ";
             end if;
 
             --  Extract properties if inside a component
@@ -73,6 +82,12 @@ package body Parser is
                elsif Index (Current_Line, "<InnerDiameter>") > 0 then
                   Body_Tube(Current_Component.all).Inner_Diameter :=
                     Extract_Float (Current_Line, "InnerDiameter");
+               end if;
+            elsif Parsing_Parachute and then Current_Component /= null then
+               if Index (Current_Line, "<Diameter>") > 0 then
+                  Parachute(Current_Component.all).Diameter := Extract_Float (Current_Line, "Diameter");
+               elsif Index (Current_Line, "<DeployAltitude>") > 0 then
+                  Parachute(Current_Component.all).Deploy_Altitude := Extract_Float (Current_Line, "DeployAltitude");
                end if;
             end if;
          end;

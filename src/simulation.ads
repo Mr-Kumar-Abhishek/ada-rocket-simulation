@@ -14,7 +14,7 @@ package Simulation is
 
    -- Simple Euler numerical integration step
    procedure Step (Current : in out State;
-                   Rocket  : in Component'Class;
+                   Rocket  : in out Component'Class;
                    Thrust  : in Float;
                    Dt      : in Float);
 

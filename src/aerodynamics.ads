@@ -8,6 +8,7 @@ package Aerodynamics is
 
    function Get_Total_CN (This : Component'Class) return Float;
    function Get_Total_CP (This : Component'Class) return Float;
+   function Get_Total_CDA (This : Component'Class) return Float;
 
    -- Stability Margin (in calibers)
    -- CP and CG are measured from the nose tip. Max_Diameter is the maximum body diameter.

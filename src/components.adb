@@ -111,4 +111,16 @@ package body Components is
       return ((Structural_Mass * (This.Length / 2.0)) + (Motor_Mass * (This.Length / 2.0))) / Total_Mass;
    end Get_CG;
 
+   -- Parachute
+   overriding function Get_Mass (This : Parachute) return Float is
+   begin
+      -- Simplified: mass of parachute assumed negligible or included in Mass_Object for now
+      return 0.05; 
+   end Get_Mass;
+
+   overriding function Get_CG (This : Parachute) return Float is
+   begin
+      return 0.0;
+   end Get_CG;
+
 end Components;

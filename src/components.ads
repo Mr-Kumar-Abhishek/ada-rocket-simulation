@@ -70,4 +70,14 @@ package Components is
    overriding function Get_Mass (This : Engine_Mount) return Float;
    overriding function Get_CG (This : Engine_Mount) return Float;
 
+   type Parachute is new Component with record
+      Diameter         : Float;
+      Drag_Coefficient : Float := 1.5;
+      Deploy_Altitude  : Float := 0.0;
+      Is_Deployed      : Boolean := False;
+   end record;
+
+   overriding function Get_Mass (This : Parachute) return Float;
+   overriding function Get_CG (This : Parachute) return Float;
+
 end Components;

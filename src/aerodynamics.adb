@@ -56,6 +56,33 @@ package body Aerodynamics is
       return Moment / Total_CN;
    end Get_Total_CP;
 
+   function Get_Total_CDA (This : Component'Class) return Float is
+      Total_CDA : Float := 0.0;
+   begin
+      if This in Parachute then
+         declare
+            P : constant Parachute := Parachute (This);
+         begin
+            if P.Is_Deployed then
+               Total_CDA := P.Drag_Coefficient * (3.14159 * (P.Diameter / 2.0)**2);
+            end if;
+         end;
+      elsif This in Nose_Cone then
+         declare
+            NC : constant Nose_Cone := Nose_Cone (This);
+         begin
+            -- Rough parasitic drag estimation based on frontal area
+            Total_CDA := 0.4 * (3.14159 * (NC.Base_Diameter / 2.0)**2);
+         end;
+      end if;
+
+      for Child of This.Children loop
+         Total_CDA := Total_CDA + Get_Total_CDA (Child.all);
+      end loop;
+
+      return Total_CDA;
+   end Get_Total_CDA;
+
    function Get_Stability_Margin (This : Component'Class; Max_Diameter : Float) return Float is
       CP : Float := Get_Total_CP (This);
       CG : Float := Get_Total_CG (This);

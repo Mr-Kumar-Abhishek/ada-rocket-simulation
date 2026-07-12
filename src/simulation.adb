@@ -3,8 +3,22 @@ with Data_Logger; use Data_Logger;
 
 package body Simulation is
 
+   procedure Deploy_Parachutes (This : in out Component'Class; Altitude : Float; Descending : Boolean) is
+   begin
+      if This in Parachute then
+         if Descending and then Altitude <= Parachute(This).Deploy_Altitude and then not Parachute(This).Is_Deployed then
+            Parachute(This).Is_Deployed := True;
+            Ada.Text_IO.Put_Line ("Parachute Deployed at Altitude: " & Float'Image(Altitude));
+         end if;
+      end if;
+
+      for Child of This.Children loop
+         Deploy_Parachutes (Child.all, Altitude, Descending);
+      end loop;
+   end Deploy_Parachutes;
+
    procedure Step (Current : in out State;
-                   Rocket  : in Component'Class;
+                   Rocket  : in out Component'Class;
                    Thrust  : in Float;
                    Dt      : in Float)
    is
@@ -12,11 +26,18 @@ package body Simulation is
       Accel : Vector_3D := (0.0, 0.0, 0.0);
       Gravity : constant Float := -9.81;
       
-      -- Basic Drag approximation
       Air_Density : constant Float := 1.225;
-      Cd_A        : constant Float := 0.005; -- simplified drag coefficient * area
+      Cd_A        : Float := Aerodynamics.Get_Total_CDA (Rocket);
       Drag_Force  : Float := 0.0;
+      Descending  : Boolean := Current.Velocity.Y < 0.0;
    begin
+      -- Base minimal drag to avoid 0 drag
+      if Cd_A = 0.0 then
+         Cd_A := 0.005;
+      end if;
+
+      Deploy_Parachutes (Rocket, Current.Position.Y, Descending);
+
       if Mass > 0.0 then
          -- Calculate drag force (opposing velocity)
          if Current.Velocity.Y > 0.0 then
@@ -53,7 +74,7 @@ package body Simulation is
       -- Run until we hit the ground
       loop
          Current_Thrust := Motors.Get_Thrust (Motor, Flight_State.Time);
-         Current_Mass   := Rocket.Get_Total_Mass; -- Includes initial motor mass for now if we don't dynamically update Engine_Mount
+         Current_Mass   := Rocket.Get_Total_Mass; -- Includes initial motor mass for now
 
          Log_State (File, Flight_State, Current_Thrust, Current_Mass);
          
@@ -64,8 +85,8 @@ package body Simulation is
          -- Stop if we hit the ground after launching (we give it 0.5s to clear the pad)
          exit when Flight_State.Position.Y <= 0.0 and then Flight_State.Time > 0.5;
          
-         -- Hard stop at 60 seconds to prevent infinite loop if drag model fails
-         exit when Flight_State.Time > 60.0;
+         -- Hard stop at 120 seconds to prevent infinite loop
+         exit when Flight_State.Time > 120.0;
 
          Step (Flight_State, Rocket, Current_Thrust, Dt);
       end loop;
