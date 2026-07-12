@@ -27,6 +27,7 @@ package Components is
    function Get_Total_Mass (This : Component'Class) return Float;
    function Get_Total_CG (This : Component'Class) return Float;
    function Get_Total_MOI (This : Component'Class) return Float;
+   function Get_Max_Diameter (This : Component'Class) return Float;
 
    -- Modifiers
    procedure Add_Child (This : in out Component'Class; Child : Component_Access);

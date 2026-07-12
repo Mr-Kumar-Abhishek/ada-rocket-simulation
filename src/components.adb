@@ -51,6 +51,30 @@ package body Components is
       return Total_MOI;
    end Get_Total_MOI;
 
+   function Get_Max_Diameter (This : Component'Class) return Float is
+      Max_Dia : Float := 0.0;
+   begin
+      if This in Body_Tube then
+         Max_Dia := Body_Tube(This).Outer_Diameter;
+      elsif This in Nose_Cone then
+         Max_Dia := Nose_Cone(This).Base_Diameter;
+      elsif This in Engine_Mount then
+         Max_Dia := Engine_Mount(This).Outer_Diameter;
+      end if;
+
+      for Child of This.Children loop
+         declare
+            Child_Max : Float := Child.Get_Max_Diameter;
+         begin
+            if Child_Max > Max_Dia then
+               Max_Dia := Child_Max;
+            end if;
+         end;
+      end loop;
+
+      return Max_Dia;
+   end Get_Max_Diameter;
+
    procedure Add_Child (This : in out Component'Class; Child : Component_Access) is
    begin
       This.Children.Append (Child);

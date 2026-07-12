@@ -28,7 +28,7 @@ package body Simulation is
       Mass        : constant Float := Rocket.Get_Total_Mass;
       MOI         : constant Float := Rocket.Get_Total_MOI;
       CG          : constant Float := Rocket.Get_Total_CG;
-      Max_Dia     : constant Float := 0.05; -- Simplify for now
+      Max_Dia     : constant Float := Rocket.Get_Max_Diameter;
       CP          : constant Float := Aerodynamics.Get_Total_CP (Rocket, Max_Dia);
       CNa         : constant Float := Aerodynamics.Get_Total_CN (Rocket, Max_Dia);
       Cd_A        : Float := Aerodynamics.Get_Total_CDA (Rocket);

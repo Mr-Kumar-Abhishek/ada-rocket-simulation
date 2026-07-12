@@ -404,6 +404,17 @@ begin
          end if;
          
          Put_Line ("Rocket loaded successfully. Mass: " & Float'Image (Rocket.Get_Total_Mass) & " kg");
+         declare
+            CG      : constant Float := Rocket.Get_Total_CG;
+            Max_Dia : constant Float := Rocket.Get_Max_Diameter;
+            CP      : constant Float := Aerodynamics.Get_Total_CP (Rocket.all, Max_Dia);
+            Margin  : constant Float := Aerodynamics.Get_Stability_Margin (Rocket.all, Max_Dia);
+         begin
+            Put_Line ("  Center of Gravity: " & Float'Image (CG) & " m");
+            Put_Line ("  Center of Pressure: " & Float'Image (CP) & " m");
+            Put_Line ("  Max Body Diameter: " & Float'Image (Max_Dia) & " m");
+            Put_Line ("  Stability Margin: " & Float'Image (Margin) & " calibers");
+         end;
          
          Find_Motor (Rocket.all, Found_Motor, Motor);
          
