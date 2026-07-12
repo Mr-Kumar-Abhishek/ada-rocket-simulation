@@ -289,6 +289,15 @@ procedure Ada_Rocket_Simulations is
    begin
       Put_Line ("Running Parser Tests...");
 
+      --  Create a dummy motor file
+      Create (File, Out_File, "test_motor.eng");
+      Put_Line (File, "; Estes C6");
+      Put_Line (File, "C6 18 65 5-2 0.0108 0.0248 Estes");
+      Put_Line (File, "0.010 0.000");
+      Put_Line (File, "0.021 6.849");
+      Put_Line (File, "1.600 0.000");
+      Close (File);
+
       --  Create a dummy XML file
       Create (File, Out_File, "test_rocket.xml");
       Put_Line (File, "<OpenRocket>");
@@ -304,6 +313,17 @@ procedure Ada_Rocket_Simulations is
       Put_Line (File, "    <Span>0.05</Span>");
       Put_Line (File, "    <Thickness>0.003</Thickness>");
       Put_Line (File, "  </FinSet>");
+      Put_Line (File, "  <MassObject>");
+      Put_Line (File, "    <Mass>0.1</Mass>");
+      Put_Line (File, "    <CG>0.2</CG>");
+      Put_Line (File, "  </MassObject>");
+      Put_Line (File, "  <EngineBlock>");
+      Put_Line (File, "    <Length>0.1</Length>");
+      Put_Line (File, "    <OuterDiameter>0.03</OuterDiameter>");
+      Put_Line (File, "    <InnerDiameter>0.025</InnerDiameter>");
+      Put_Line (File, "    <Density>500.0</Density>");
+      Put_Line (File, "    <Motor>test_motor.eng</Motor>");
+      Put_Line (File, "  </EngineBlock>");
       Put_Line (File, "</OpenRocket>");
       Close (File);
 
