@@ -45,3 +45,4 @@ The `Motors` module parses motor data files and provides thrust vs. time interpo
   - `OpenRocket.Aerodynamics`
   - `OpenRocket.Simulation`
   - `OpenRocket.IO`
+  - `OpenRocket.Data_Logger` (CSV export)

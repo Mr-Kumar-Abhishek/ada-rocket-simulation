@@ -129,6 +129,8 @@ procedure Ada_Rocket_Simulations is
       Mount : aliased Engine_Mount;
       Nose  : aliased Nose_Cone;
       Estes_C6 : Motor_Type;
+      Apogee : Float;
+      Flight_Time : Float;
    begin
       Put_Line ("Running Full Flight Simulation Test...");
       
@@ -158,7 +160,10 @@ procedure Ada_Rocket_Simulations is
       Nose.Add_Child (Mount'Access);
 
       -- Run flight and log to CSV
-      Run_Flight (Rocket => Nose, Motor => Estes_C6, Dt => 0.01, Output_File => "flight_data.csv");
+      Run_Flight (Rocket => Nose, Motor => Estes_C6, Dt => 0.01, Output_File => "flight_data.csv", Apogee => Apogee, Flight_Time => Flight_Time);
+
+      pragma Assert (Apogee > 0.0, "Flight apogee must be strictly positive");
+      pragma Assert (Flight_Time > 1.6, "Flight time should outlast motor burn time");
 
       Put_Line ("Full Flight Simulation finished. Data logged to flight_data.csv");
    end Run_Full_Flight_Test;

@@ -19,9 +19,11 @@ package Simulation is
                    Dt      : in Float);
 
    -- Runs a full flight simulation loop until rocket returns to ground
-   procedure Run_Flight (Rocket : in out Component'Class;
-                         Motor  : in Motor_Type;
-                         Dt     : in Float;
-                         Output_File : in String);
+   procedure Run_Flight (Rocket      : in out Component'Class;
+                         Motor       : in Motor_Type;
+                         Dt          : in Float;
+                         Output_File : in String;
+                         Apogee      : out Float;
+                         Flight_Time : out Float);
 
 end Simulation;

@@ -35,34 +35,18 @@ package body Simulation is
       Current.Time     := Current.Time + Dt;
    end Step;
 
-   procedure Run_Flight (Rocket : in out Component'Class;
-                         Motor  : in Motor_Type;
-                         Dt     : in Float;
-                         Output_File : in String)
+   procedure Run_Flight (Rocket      : in out Component'Class;
+                         Motor       : in Motor_Type;
+                         Dt          : in Float;
+                         Output_File : in String;
+                         Apogee      : out Float;
+                         Flight_Time : out Float)
    is
       Flight_State : State := (Position => (0.0, 0.0, 0.0), Velocity => (0.0, 0.0, 0.0), Time => 0.0);
       File         : Ada.Text_IO.File_Type;
       Current_Thrust : Float;
       Current_Mass   : Float;
-      
-      -- To find the engine mount and update its time
-      procedure Update_Motor_Time (C : in out Component'Class; Time : Float) is
-      begin
-         if C in Engine_Mount then
-            declare
-               EM : Engine_Mount := Engine_Mount (C);
-            begin
-               EM.Simulation_Time := Time;
-               -- We need a way to mutate the actual component. 
-               -- Since Ada's 'Class and tagged types can be tricky without proper access types,
-               -- for this simple prototype, we'll assume the overall mass is just the static structural mass + dynamic motor mass.
-               -- Actually, we can just pass the thrust directly to `Step`.
-            end;
-         end if;
-         -- Not doing full recursive mutation in this snippet for simplicity,
-         -- the motor mass is just evaluated at each step if needed.
-      end Update_Motor_Time;
-
+      Max_Height     : Float := 0.0;
    begin
       Init_Log (File, Output_File);
 
@@ -72,6 +56,10 @@ package body Simulation is
          Current_Mass   := Rocket.Get_Total_Mass; -- Includes initial motor mass for now if we don't dynamically update Engine_Mount
 
          Log_State (File, Flight_State, Current_Thrust, Current_Mass);
+         
+         if Flight_State.Position.Y > Max_Height then
+            Max_Height := Flight_State.Position.Y;
+         end if;
 
          -- Stop if we hit the ground after launching (we give it 0.5s to clear the pad)
          exit when Flight_State.Position.Y <= 0.0 and then Flight_State.Time > 0.5;
@@ -83,6 +71,9 @@ package body Simulation is
       end loop;
 
       Close_Log (File);
+      
+      Apogee := Max_Height;
+      Flight_Time := Flight_State.Time;
    end Run_Flight;
 
 end Simulation;
