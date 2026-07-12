@@ -168,6 +168,39 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("Full Flight Simulation finished. Data logged to flight_data.csv");
    end Run_Full_Flight_Test;
 
+   procedure Run_Parser_Tests is
+      File : Ada.Text_IO.File_Type;
+      Rocket : Component_Access;
+   begin
+      Put_Line ("Running Parser Tests...");
+      
+      -- Create a dummy XML file
+      Create (File, Out_File, "test_rocket.xml");
+      Put_Line (File, "<OpenRocket>");
+      Put_Line (File, "  <NoseCone>");
+      Put_Line (File, "    <Length>0.65</Length>");
+      Put_Line (File, "    <BaseDiameter>0.05</BaseDiameter>");
+      Put_Line (File, "  </NoseCone>");
+      Put_Line (File, "</OpenRocket>");
+      Close (File);
+      
+      -- Parse it
+      Parser.Load_Rocket ("test_rocket.xml", Rocket);
+      
+      -- Asserts
+      pragma Assert (Rocket /= null, "Rocket should not be null after parsing");
+      pragma Assert (Rocket.all in Nose_Cone, "Parsed root should be a Nose Cone");
+      
+      declare
+         NC : constant Nose_Cone := Nose_Cone (Rocket.all);
+      begin
+         pragma Assert (abs (NC.Length - 0.65) < 0.001, "Parsed length failed");
+         pragma Assert (abs (NC.Base_Diameter - 0.05) < 0.001, "Parsed base diameter failed");
+      end;
+      
+      Put_Line ("All Parser Tests Passed!");
+   end Run_Parser_Tests;
+
 begin
    Put_Line ("Starting OpenRocket Ada TDD Test Runner");
    Put_Line ("---------------------------------------");
@@ -175,5 +208,6 @@ begin
    Run_Component_Tests;
    Run_Simulation_Tests;
    Run_Motor_Tests;
+   Run_Parser_Tests;
    Run_Full_Flight_Test;
 end Ada_Rocket_Simulations;
