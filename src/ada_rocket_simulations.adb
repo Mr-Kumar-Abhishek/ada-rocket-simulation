@@ -2,6 +2,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Math; use Math;
 with Components; use Components;
 with Aerodynamics; use Aerodynamics;
+with Simulation; use Simulation;
 
 procedure Ada_Rocket_Simulations is
 
@@ -71,9 +72,34 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("All Component & Aerodynamics Tests Passed!");
    end Run_Component_Tests;
 
+   procedure Run_Simulation_Tests is
+      Payload : aliased Mass_Object;
+      Tube    : aliased Body_Tube;
+      Flight_State : State := (Position => (0.0, 0.0, 0.0), Velocity => (0.0, 0.0, 0.0), Time => 0.0);
+   begin
+      Put_Line ("Running Simulation Tests...");
+      
+      Payload.Mass := 1.0;
+      Tube.Length := 1.0;
+      Tube.Outer_Diameter := 0.1;
+      Tube.Inner_Diameter := 0.09;
+      Tube.Density := 1000.0;
+      Tube.Add_Child (Payload'Access);
+
+      -- Step 1 second with enough thrust to hover
+      -- Mass ~ 2.49 kg. Hover thrust = 2.49 * 9.81 = ~24.4 N
+      Step (Flight_State, Tube, 24.4, 1.0);
+      
+      -- It shouldn't have fallen very far (Y velocity near 0)
+      pragma Assert (abs (Flight_State.Velocity.Y) < 10.0, "Hover test failed");
+
+      Put_Line ("All Simulation Tests Passed!");
+   end Run_Simulation_Tests;
+
 begin
    Put_Line ("Starting OpenRocket Ada TDD Test Runner");
    Put_Line ("---------------------------------------");
    Run_Math_Tests;
    Run_Component_Tests;
+   Run_Simulation_Tests;
 end Ada_Rocket_Simulations;
