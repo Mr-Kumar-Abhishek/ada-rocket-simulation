@@ -7,7 +7,8 @@ This project is an Ada port of the core physics and component hierarchies of Ope
 The codebase is built using **Test-Driven Development (TDD)** and is structured iteratively into sprints:
 - **Core Math**: 3D Vectors, Operations, Cross Products, and Scalar Multiplication.
 - **Components**: Composite tree hierarchy of rocket components with recursive Mass and CG accumulation.
-- **Aerodynamics**: Barrowman Equations implementation for calculating Normal Force Coefficient (CN) and Center of Pressure (CP).
+- **Aerodynamics**: Barrowman Equations implementation for calculating Normal Force Coefficient (CN) and Center of Pressure (CP), plus Stability Margin.
+- **Motors**: Motor subsystem with thrust curves and dynamic mass reduction.
 - **Simulation**: Euler numerical integration stepping for time, velocity, and position given thrust and forces.
 
 ## Prerequisites

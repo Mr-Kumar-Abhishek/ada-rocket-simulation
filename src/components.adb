@@ -69,4 +69,46 @@ package body Components is
       return This.Length * 0.75; -- CG of a solid cone from the tip
    end Get_CG;
 
+   -- Engine_Mount
+   overriding function Get_Mass (This : Engine_Mount) return Float is
+      Pi : constant Float := 3.14159265;
+      Volume : Float;
+      Structural_Mass : Float;
+      Total_Mass : Float;
+   begin
+      Volume := Pi * ((This.Outer_Diameter / 2.0)**2 - (This.Inner_Diameter / 2.0)**2) * This.Length;
+      Structural_Mass := Volume * This.Density;
+      Total_Mass := Structural_Mass;
+      
+      if This.Has_Motor then
+         Total_Mass := Total_Mass + Motors.Get_Mass (This.Motor, This.Simulation_Time);
+      end if;
+      
+      return Total_Mass;
+   end Get_Mass;
+
+   overriding function Get_CG (This : Engine_Mount) return Float is
+      Structural_Mass : Float;
+      Pi : constant Float := 3.14159265;
+      Volume : Float;
+      Motor_Mass : Float := 0.0;
+      Total_Mass : Float;
+   begin
+      Volume := Pi * ((This.Outer_Diameter / 2.0)**2 - (This.Inner_Diameter / 2.0)**2) * This.Length;
+      Structural_Mass := Volume * This.Density;
+      
+      if This.Has_Motor then
+         Motor_Mass := Motors.Get_Mass (This.Motor, This.Simulation_Time);
+      end if;
+      
+      Total_Mass := Structural_Mass + Motor_Mass;
+      
+      if Total_Mass = 0.0 then
+         return 0.0;
+      end if;
+      
+      -- Assuming both the mount structure and the motor have their individual CGs at Length / 2.0
+      return ((Structural_Mass * (This.Length / 2.0)) + (Motor_Mass * (This.Length / 2.0))) / Total_Mass;
+   end Get_CG;
+
 end Components;

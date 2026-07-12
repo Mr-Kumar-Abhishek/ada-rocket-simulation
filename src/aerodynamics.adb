@@ -56,4 +56,14 @@ package body Aerodynamics is
       return Moment / Total_CN;
    end Get_Total_CP;
 
+   function Get_Stability_Margin (This : Component'Class; Max_Diameter : Float) return Float is
+      CP : Float := Get_Total_CP (This);
+      CG : Float := Get_Total_CG (This);
+   begin
+      if Max_Diameter <= 0.0 then
+         return 0.0;
+      end if;
+      return (CP - CG) / Max_Diameter;
+   end Get_Stability_Margin;
+
 end Aerodynamics;

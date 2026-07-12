@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors;
 with Math; use Math;
+with Motors;
 
 package Components is
 
@@ -55,5 +56,18 @@ package Components is
 
    overriding function Get_Mass (This : Nose_Cone) return Float;
    overriding function Get_CG (This : Nose_Cone) return Float;
+
+   type Engine_Mount is new Component with record
+      Length         : Float;
+      Outer_Diameter : Float;
+      Inner_Diameter : Float;
+      Density        : Float;
+      Has_Motor      : Boolean := False;
+      Motor          : Motors.Motor_Type;
+      Simulation_Time: Float := 0.0; -- To track time for mass reduction during burn
+   end record;
+
+   overriding function Get_Mass (This : Engine_Mount) return Float;
+   overriding function Get_CG (This : Engine_Mount) return Float;
 
 end Components;

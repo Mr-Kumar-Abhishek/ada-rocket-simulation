@@ -3,6 +3,7 @@ with Math; use Math;
 with Components; use Components;
 with Aerodynamics; use Aerodynamics;
 with Simulation; use Simulation;
+with Motors; use Motors;
 
 procedure Ada_Rocket_Simulations is
 
@@ -69,6 +70,9 @@ procedure Ada_Rocket_Simulations is
       -- Total CP calculation
       pragma Assert (Get_Total_CP (Nose) >= 0.0, "Total CP failed");
 
+      -- Stability Margin
+      pragma Assert (Get_Stability_Margin (Nose, Tube.Outer_Diameter) >= 0.0, "Stability Margin failed");
+
       Put_Line ("All Component & Aerodynamics Tests Passed!");
    end Run_Component_Tests;
 
@@ -96,10 +100,36 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("All Simulation Tests Passed!");
    end Run_Simulation_Tests;
 
+   procedure Run_Motor_Tests is
+      Estes_C6 : Motor_Type;
+      Thrust   : Float;
+   begin
+      Put_Line ("Running Motor Tests...");
+      Estes_C6.Name := "Estes C6-5      ";
+      Estes_C6.Name_Len := 10;
+      Estes_C6.Burn_Time := 1.6;
+      Estes_C6.Total_Mass := 0.025;
+      Estes_C6.Prop_Mass := 0.012;
+      Estes_C6.Num_Points := 3;
+      Estes_C6.Thrust_Curve (1) := (Time => 0.0, Thrust => 0.0);
+      Estes_C6.Thrust_Curve (2) := (Time => 0.2, Thrust => 14.0);
+      Estes_C6.Thrust_Curve (3) := (Time => 1.6, Thrust => 4.0);
+      
+      -- Test Thrust Interpolation
+      Thrust := Get_Thrust (Estes_C6, 0.1);
+      pragma Assert (Thrust = 7.0, "Thrust interpolation failed at 0.1s");
+      
+      -- Test Mass
+      pragma Assert (Get_Mass (Estes_C6, 0.8) = 0.019, "Mass interpolation failed at 0.8s");
+      
+      Put_Line ("All Motor Tests Passed!");
+   end Run_Motor_Tests;
+
 begin
    Put_Line ("Starting OpenRocket Ada TDD Test Runner");
    Put_Line ("---------------------------------------");
    Run_Math_Tests;
    Run_Component_Tests;
    Run_Simulation_Tests;
+   Run_Motor_Tests;
 end Ada_Rocket_Simulations;
