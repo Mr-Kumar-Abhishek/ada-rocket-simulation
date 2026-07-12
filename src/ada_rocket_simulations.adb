@@ -1,4 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Command_Line; use Ada.Command_Line;
 with Math; use Math;
 with Components; use Components;
 with Aerodynamics; use Aerodynamics;
@@ -338,15 +339,94 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("All Parser Tests Passed!");
    end Run_Parser_Tests;
 
+   procedure Find_Motor (Comp : Component'Class; Found : out Boolean; Motor : out Motor_Type) is
+   begin
+      Found := False;
+      
+      if Comp in Engine_Mount and then Engine_Mount(Comp).Has_Motor then
+         Motor := Engine_Mount(Comp).Motor;
+         Found := True;
+         return;
+      end if;
+      
+      for Child of Comp.Children loop
+         Find_Motor (Child.all, Found, Motor);
+         if Found then
+            return;
+         end if;
+      end loop;
+   end Find_Motor;
+
+   procedure Run_TDD_Suite is
+   begin
+      Put_Line ("Starting OpenRocket Ada TDD Test Runner");
+      Put_Line ("---------------------------------------");
+      Run_Math_Tests;
+      Run_Component_Tests;
+      Run_Simulation_Tests;
+      Run_Motor_Tests;
+      Run_Recovery_Test;
+      Run_Fin_Aerodynamics_Test;
+      Run_Parser_Tests;
+      Run_Full_Flight_Test;
+   end Run_TDD_Suite;
+
 begin
-   Put_Line ("Starting OpenRocket Ada TDD Test Runner");
-   Put_Line ("---------------------------------------");
-   Run_Math_Tests;
-   Run_Component_Tests;
-   Run_Simulation_Tests;
-   Run_Motor_Tests;
-   Run_Recovery_Test;
-   Run_Fin_Aerodynamics_Test;
-   Run_Parser_Tests;
-   Run_Full_Flight_Test;
+   if Argument_Count = 0 or else (Argument_Count >= 1 and then Argument (1) = "--test") then
+      Run_TDD_Suite;
+   elsif Argument_Count >= 2 and then Argument (1) = "--rocket" then
+      declare
+         Rocket_File : constant String := Argument (2);
+         Output_File : String (1..256);
+         Output_Len  : Natural := 0;
+         Rocket      : Component_Access;
+         Found_Motor : Boolean := False;
+         Motor       : Motor_Type;
+         Apogee      : Float;
+         Flight_Time : Float;
+      begin
+         if Argument_Count >= 4 and then Argument (3) = "--output" then
+            Output_File (1 .. Argument(4)'Length) := Argument(4);
+            Output_Len := Argument(4)'Length;
+         else
+            Output_File (1 .. 15) := "flight_data.csv";
+            Output_Len := 15;
+         end if;
+         
+         Put_Line ("Loading rocket from: " & Rocket_File);
+         Parser.Load_Rocket (Rocket_File, Rocket);
+         
+         if Rocket = null then
+            Put_Line ("Failed to load rocket.");
+            return;
+         end if;
+         
+         Put_Line ("Rocket loaded successfully. Mass: " & Float'Image (Rocket.Get_Total_Mass) & " kg");
+         
+         Find_Motor (Rocket.all, Found_Motor, Motor);
+         
+         if not Found_Motor then
+            Put_Line ("Warning: No motor found in the rocket. Flight will be unpowered.");
+            -- Dummy zero-thrust motor
+            Motor.Name_Len := 5;
+            Motor.Name (1..5) := "Dummy";
+            Motor.Burn_Time := 0.0;
+            Motor.Num_Points := 0;
+         else
+            Put_Line ("Found motor: " & Motor.Name(1..Motor.Name_Len));
+         end if;
+         
+         Put_Line ("Simulating 6-DOF flight...");
+         Simulation.Run_Flight (Rocket.all, Motor, 0.01, Output_File (1..Output_Len), Apogee, Flight_Time);
+         
+         Put_Line ("Simulation complete.");
+         Put_Line ("Apogee: " & Float'Image (Apogee) & " m");
+         Put_Line ("Flight Time: " & Float'Image (Flight_Time) & " s");
+         Put_Line ("Telemetry written to: " & Output_File (1..Output_Len));
+      end;
+   else
+      Put_Line ("Usage: ");
+      Put_Line ("  ./ada_rocket_simulations --test");
+      Put_Line ("  ./ada_rocket_simulations --rocket <file.xml> [--output <file.csv>]");
+   end if;
 end Ada_Rocket_Simulations;
