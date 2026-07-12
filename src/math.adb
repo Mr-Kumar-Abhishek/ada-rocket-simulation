@@ -12,6 +12,11 @@ package body Math is
       return (Left.X - Right.X, Left.Y - Right.Y, Left.Z - Right.Z);
    end "-";
 
+   function "-" (Right : Vector_3D) return Vector_3D is
+   begin
+      return (-Right.X, -Right.Y, -Right.Z);
+   end "-";
+
    function "*" (Left : Float; Right : Vector_3D) return Vector_3D is
    begin
       return (Left * Right.X, Left * Right.Y, Left * Right.Z);

@@ -14,6 +14,7 @@ package Math is
 
    function "+" (Left, Right : Vector_3D) return Vector_3D;
    function "-" (Left, Right : Vector_3D) return Vector_3D;
+   function "-" (Right : Vector_3D) return Vector_3D;
    function "*" (Left : Float; Right : Vector_3D) return Vector_3D;
    function "*" (Left : Vector_3D; Right : Float) return Vector_3D;
    function "/" (Left : Vector_3D; Right : Float) return Vector_3D;
