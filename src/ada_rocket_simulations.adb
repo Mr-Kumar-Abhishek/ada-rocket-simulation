@@ -125,6 +125,44 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("All Motor Tests Passed!");
    end Run_Motor_Tests;
 
+   procedure Run_Full_Flight_Test is
+      Mount : aliased Engine_Mount;
+      Nose  : aliased Nose_Cone;
+      Estes_C6 : Motor_Type;
+   begin
+      Put_Line ("Running Full Flight Simulation Test...");
+      
+      -- Setup Motor
+      Estes_C6.Name := "Estes C6-5      ";
+      Estes_C6.Name_Len := 10;
+      Estes_C6.Burn_Time := 1.6;
+      Estes_C6.Total_Mass := 0.025;
+      Estes_C6.Prop_Mass := 0.012;
+      Estes_C6.Num_Points := 3;
+      Estes_C6.Thrust_Curve (1) := (Time => 0.0, Thrust => 0.0);
+      Estes_C6.Thrust_Curve (2) := (Time => 0.2, Thrust => 14.0);
+      Estes_C6.Thrust_Curve (3) := (Time => 1.6, Thrust => 4.0);
+
+      -- Setup Rocket
+      Mount.Length := 0.5;
+      Mount.Outer_Diameter := 0.03;
+      Mount.Inner_Diameter := 0.025;
+      Mount.Density := 500.0;
+      Mount.Has_Motor := True;
+      Mount.Motor := Estes_C6;
+
+      Nose.Length := 0.2;
+      Nose.Base_Diameter := 0.03;
+      Nose.Density := 200.0;
+      
+      Nose.Add_Child (Mount'Access);
+
+      -- Run flight and log to CSV
+      Run_Flight (Rocket => Nose, Motor => Estes_C6, Dt => 0.01, Output_File => "flight_data.csv");
+
+      Put_Line ("Full Flight Simulation finished. Data logged to flight_data.csv");
+   end Run_Full_Flight_Test;
+
 begin
    Put_Line ("Starting OpenRocket Ada TDD Test Runner");
    Put_Line ("---------------------------------------");
@@ -132,4 +170,5 @@ begin
    Run_Component_Tests;
    Run_Simulation_Tests;
    Run_Motor_Tests;
+   Run_Full_Flight_Test;
 end Ada_Rocket_Simulations;

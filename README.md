@@ -9,7 +9,7 @@ The codebase is built using **Test-Driven Development (TDD)** and is structured 
 - **Components**: Composite tree hierarchy of rocket components with recursive Mass and CG accumulation.
 - **Aerodynamics**: Barrowman Equations implementation for calculating Normal Force Coefficient (CN) and Center of Pressure (CP), plus Stability Margin.
 - **Motors**: Motor subsystem with thrust curves and dynamic mass reduction.
-- **Simulation**: Euler numerical integration stepping for time, velocity, and position given thrust and forces.
+- **Simulation**: Full flight loop using Euler numerical integration for time, velocity, and position given thrust, drag, and gravity, with CSV data output.
 
 ## Prerequisites
 
