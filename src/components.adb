@@ -123,4 +123,18 @@ package body Components is
       return 0.0;
    end Get_CG;
 
+   -- Fin_Set
+   overriding function Get_Mass (This : Fin_Set) return Float is
+      Area : Float;
+   begin
+      Area := 0.5 * (This.Root_Chord + This.Tip_Chord) * This.Span;
+      return Area * This.Thickness * This.Density * Float (This.Number_Of_Fins);
+   end Get_Mass;
+
+   overriding function Get_CG (This : Fin_Set) return Float is
+   begin
+      -- Simplified CG calculation for fin geometry
+      return This.Root_Chord / 2.0;
+   end Get_CG;
+
 end Components;

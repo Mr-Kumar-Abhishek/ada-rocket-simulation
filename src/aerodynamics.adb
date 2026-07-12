@@ -1,13 +1,34 @@
+with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
+
 package body Aerodynamics is
 
    -- Barrowman Equations (Simplified for Subsonic)
 
-   function Get_CN (This : Component'Class) return Float is
+   function Get_CN (This : Component'Class; Max_Diameter : Float) return Float is
    begin
       if This in Nose_Cone then
          return 2.0; -- Standard for a conical/ogive nose cone
       elsif This in Body_Tube then
          return 0.0; -- Bare body tube has roughly zero normal force in Barrowman
+      elsif This in Fin_Set then
+         declare
+            F : constant Fin_Set := Fin_Set (This);
+            Term1 : Float;
+            Term2 : Float;
+            L_mid : Float;
+         begin
+            if Max_Diameter <= 0.0 then
+               return 0.0;
+            end if;
+
+            -- Mid-chord sweep length
+            L_mid := F.Sweep_Length + (F.Tip_Chord / 2.0) - (F.Root_Chord / 2.0);
+
+            -- CN = (4 * n * (s/d)^2) / (1 + sqrt(1 + (2 * L_mid / (Cr + Ct))^2))
+            Term1 := 4.0 * Float(F.Number_Of_Fins) * ((F.Span / Max_Diameter) ** 2);
+            Term2 := 1.0 + Sqrt (1.0 + ((2.0 * L_mid) / (F.Root_Chord + F.Tip_Chord)) ** 2);
+            return Term1 / Term2;
+         end;
       else
          return 0.0;
       end if;
@@ -19,7 +40,7 @@ package body Aerodynamics is
          declare
             NC : constant Nose_Cone := Nose_Cone (This);
          begin
-            return NC.Length * 0.466; -- Rough CP for a cone (actually 0.66 for cone, 0.466 for ogive, using 0.466 here)
+            return NC.Length * 0.466; -- Rough CP for a cone
          end;
       elsif This in Body_Tube then
          declare
@@ -27,30 +48,41 @@ package body Aerodynamics is
          begin
             return BT.Length / 2.0;
          end;
+      elsif This in Fin_Set then
+         declare
+            F : constant Fin_Set := Fin_Set (This);
+            Term1 : Float;
+            Term2 : Float;
+         begin
+            -- CP from fin leading edge root
+            Term1 := (F.Sweep_Length / 3.0) * ((F.Root_Chord + 2.0 * F.Tip_Chord) / (F.Root_Chord + F.Tip_Chord));
+            Term2 := (1.0 / 6.0) * (F.Root_Chord + F.Tip_Chord - ((F.Root_Chord * F.Tip_Chord) / (F.Root_Chord + F.Tip_Chord)));
+            return Term1 + Term2;
+         end;
       else
          return 0.0;
       end if;
    end Get_CP;
 
-   function Get_Total_CN (This : Component'Class) return Float is
-      Total_CN : Float := Get_CN (This);
+   function Get_Total_CN (This : Component'Class; Max_Diameter : Float) return Float is
+      Total_CN : Float := Get_CN (This, Max_Diameter);
    begin
       for Child of This.Children loop
-         Total_CN := Total_CN + Get_Total_CN (Child.all);
+         Total_CN := Total_CN + Get_Total_CN (Child.all, Max_Diameter);
       end loop;
       return Total_CN;
    end Get_Total_CN;
 
-   function Get_Total_CP (This : Component'Class) return Float is
-      Total_CN : Float := Get_Total_CN (This);
-      Moment   : Float := Get_CN (This) * Get_CP (This);
+   function Get_Total_CP (This : Component'Class; Max_Diameter : Float) return Float is
+      Total_CN : Float := Get_Total_CN (This, Max_Diameter);
+      Moment   : Float := Get_CN (This, Max_Diameter) * Get_CP (This);
    begin
       if Total_CN = 0.0 then
          return 0.0;
       end if;
 
       for Child of This.Children loop
-         Moment := Moment + Get_Total_CN (Child.all) * (Child.Position + Get_Total_CP (Child.all));
+         Moment := Moment + Get_Total_CN (Child.all, Max_Diameter) * (Child.Position + Get_Total_CP (Child.all, Max_Diameter));
       end loop;
 
       return Moment / Total_CN;
@@ -71,7 +103,6 @@ package body Aerodynamics is
          declare
             NC : constant Nose_Cone := Nose_Cone (This);
          begin
-            -- Rough parasitic drag estimation based on frontal area
             Total_CDA := 0.4 * (3.14159 * (NC.Base_Diameter / 2.0)**2);
          end;
       end if;
@@ -84,7 +115,7 @@ package body Aerodynamics is
    end Get_Total_CDA;
 
    function Get_Stability_Margin (This : Component'Class; Max_Diameter : Float) return Float is
-      CP : Float := Get_Total_CP (This);
+      CP : Float := Get_Total_CP (This, Max_Diameter);
       CG : Float := Get_Total_CG (This);
    begin
       if Max_Diameter <= 0.0 then

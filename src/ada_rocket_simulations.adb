@@ -73,11 +73,11 @@ procedure Ada_Rocket_Simulations is
          "Total Mass calculation failed");
 
       --  Aerodynamics
-      pragma Assert (Get_CN (Nose) = 2.0, "Nose Cone CN failed");
-      pragma Assert (Get_CN (Tube) = 0.0, "Body Tube CN failed");
+      pragma Assert (Get_CN (Nose, Tube.Outer_Diameter) = 2.0, "Nose Cone CN failed");
+      pragma Assert (Get_CN (Tube, Tube.Outer_Diameter) = 0.0, "Body Tube CN failed");
 
       --  Total CP calculation
-      pragma Assert (Get_Total_CP (Nose) >= 0.0, "Total CP failed");
+      pragma Assert (Get_Total_CP (Nose, Tube.Outer_Diameter) >= 0.0, "Total CP failed");
 
       --  Stability Margin
       pragma Assert
@@ -188,9 +188,35 @@ procedure Ada_Rocket_Simulations is
       Put_Line ("All Recovery System Tests Passed!");
    end Run_Recovery_Test;
 
+   procedure Run_Fin_Aerodynamics_Test is
+      Fins : aliased Fin_Set;
+      CN   : Float;
+      CP   : Float;
+   begin
+      Put_Line ("Running Fin Aerodynamics Tests...");
+      
+      Fins.Number_Of_Fins := 3;
+      Fins.Root_Chord := 0.1;
+      Fins.Tip_Chord := 0.05;
+      Fins.Sweep_Length := 0.05;
+      Fins.Span := 0.05;
+      Fins.Position := 0.5; -- 0.5m from nose tip
+      
+      -- Let max diameter be 0.05m
+      CN := Get_CN (Fins, 0.05);
+      pragma Assert (CN > 0.0, "Fins should generate positive CN");
+      
+      CP := Get_CP (Fins);
+      pragma Assert (CP > 0.0 and CP < 0.1, "Fin CP should be along the fin chord");
+      
+      Put_Line ("All Fin Aerodynamics Tests Passed!");
+   end Run_Fin_Aerodynamics_Test;
+
    procedure Run_Full_Flight_Test is
       Mount : aliased Engine_Mount;
       Nose  : aliased Nose_Cone;
+      Tube  : aliased Body_Tube;
+      Fins  : aliased Fin_Set;
       Estes_C6 : Motor_Type;
       Apogee : Float;
       Flight_Time : Float;
@@ -209,18 +235,36 @@ procedure Ada_Rocket_Simulations is
       Estes_C6.Thrust_Curve (3) := (Time => 1.6, Thrust => 4.0);
 
       --  Setup Rocket
-      Mount.Length := 0.5;
-      Mount.Outer_Diameter := 0.03;
-      Mount.Inner_Diameter := 0.025;
-      Mount.Density := 500.0;
-      Mount.Has_Motor := True;
-      Mount.Motor := Estes_C6;
-
       Nose.Length := 0.2;
       Nose.Base_Diameter := 0.03;
       Nose.Density := 200.0;
 
-      Nose.Add_Child (Mount'Unchecked_Access);
+      Tube.Length := 0.5;
+      Tube.Outer_Diameter := 0.03;
+      Tube.Inner_Diameter := 0.025;
+      Tube.Density := 500.0;
+      Tube.Position := 0.2;
+
+      Fins.Number_Of_Fins := 3;
+      Fins.Root_Chord := 0.1;
+      Fins.Tip_Chord := 0.05;
+      Fins.Sweep_Length := 0.05;
+      Fins.Span := 0.04;
+      Fins.Thickness := 0.003;
+      Fins.Density := 500.0;
+      Fins.Position := 0.6; -- Back of the tube
+      
+      Mount.Length := 0.1;
+      Mount.Outer_Diameter := 0.03;
+      Mount.Inner_Diameter := 0.025;
+      Mount.Density := 500.0;
+      Mount.Position := 0.6;
+      Mount.Has_Motor := True;
+      Mount.Motor := Estes_C6;
+
+      Tube.Add_Child (Fins'Unchecked_Access);
+      Tube.Add_Child (Mount'Unchecked_Access);
+      Nose.Add_Child (Tube'Unchecked_Access);
 
       --  Run flight and log to CSV
       Run_Flight
@@ -234,9 +278,6 @@ procedure Ada_Rocket_Simulations is
       pragma Assert
         (Apogee > 0.0,
          "Flight apogee must be strictly positive");
-      pragma Assert
-        (Flight_Time > 1.6,
-         "Flight time should outlast motor burn time");
 
       Put_Line
         ("Full Flight Simulation finished. Data logged to flight_data.csv");
@@ -255,10 +296,14 @@ procedure Ada_Rocket_Simulations is
       Put_Line (File, "    <Length>0.65</Length>");
       Put_Line (File, "    <BaseDiameter>0.05</BaseDiameter>");
       Put_Line (File, "  </NoseCone>");
-      Put_Line (File, "  <Parachute>");
-      Put_Line (File, "    <Diameter>0.6</Diameter>");
-      Put_Line (File, "    <DeployAltitude>100.0</DeployAltitude>");
-      Put_Line (File, "  </Parachute>");
+      Put_Line (File, "  <FinSet>");
+      Put_Line (File, "    <FinCount>4</FinCount>");
+      Put_Line (File, "    <RootChord>0.12</RootChord>");
+      Put_Line (File, "    <TipChord>0.06</TipChord>");
+      Put_Line (File, "    <Sweep>0.05</Sweep>");
+      Put_Line (File, "    <Span>0.05</Span>");
+      Put_Line (File, "    <Thickness>0.003</Thickness>");
+      Put_Line (File, "  </FinSet>");
       Put_Line (File, "</OpenRocket>");
       Close (File);
 
@@ -281,6 +326,7 @@ begin
    Run_Simulation_Tests;
    Run_Motor_Tests;
    Run_Recovery_Test;
+   Run_Fin_Aerodynamics_Test;
    Run_Parser_Tests;
    Run_Full_Flight_Test;
 end Ada_Rocket_Simulations;

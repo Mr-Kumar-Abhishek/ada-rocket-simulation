@@ -80,4 +80,17 @@ package Components is
    overriding function Get_Mass (This : Parachute) return Float;
    overriding function Get_CG (This : Parachute) return Float;
 
+   type Fin_Set is new Component with record
+      Number_Of_Fins : Positive := 3;
+      Root_Chord     : Float := 0.0;
+      Tip_Chord      : Float := 0.0;
+      Sweep_Length   : Float := 0.0;
+      Span           : Float := 0.0;
+      Thickness      : Float := 0.0;
+      Density        : Float := 500.0;
+   end record;
+
+   overriding function Get_Mass (This : Fin_Set) return Float;
+   overriding function Get_CG (This : Fin_Set) return Float;
+
 end Components;

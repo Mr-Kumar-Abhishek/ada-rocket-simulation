@@ -15,6 +15,7 @@ package body Parser is
       Parsing_Nose_Cone : Boolean := False;
       Parsing_Body_Tube : Boolean := False;
       Parsing_Parachute : Boolean := False;
+      Parsing_Fin_Set   : Boolean := False;
 
       Current_Component : Component_Access := null;
 
@@ -47,6 +48,7 @@ package body Parser is
                Parsing_Nose_Cone := True;
                Parsing_Body_Tube := False;
                Parsing_Parachute := False;
+               Parsing_Fin_Set   := False;
                Current_Component := new Nose_Cone;
                Current_Component.Name := "Nose Cone                       ";
                Nose_Cone(Current_Component.all).Density := 200.0;
@@ -54,6 +56,7 @@ package body Parser is
                Parsing_Body_Tube := True;
                Parsing_Nose_Cone := False;
                Parsing_Parachute := False;
+               Parsing_Fin_Set   := False;
                Current_Component := new Body_Tube;
                Current_Component.Name := "Body Tube                       ";
                Body_Tube(Current_Component.all).Density := 1000.0;
@@ -61,8 +64,16 @@ package body Parser is
                Parsing_Parachute := True;
                Parsing_Body_Tube := False;
                Parsing_Nose_Cone := False;
+               Parsing_Fin_Set   := False;
                Current_Component := new Parachute;
                Current_Component.Name := "Parachute                       ";
+            elsif Index (Current_Line, "<FinSet>") > 0 then
+               Parsing_Fin_Set   := True;
+               Parsing_Parachute := False;
+               Parsing_Body_Tube := False;
+               Parsing_Nose_Cone := False;
+               Current_Component := new Fin_Set;
+               Current_Component.Name := "Fins                            ";
             end if;
 
             --  Extract properties if inside a component
@@ -88,6 +99,20 @@ package body Parser is
                   Parachute(Current_Component.all).Diameter := Extract_Float (Current_Line, "Diameter");
                elsif Index (Current_Line, "<DeployAltitude>") > 0 then
                   Parachute(Current_Component.all).Deploy_Altitude := Extract_Float (Current_Line, "DeployAltitude");
+               end if;
+            elsif Parsing_Fin_Set and then Current_Component /= null then
+               if Index (Current_Line, "<FinCount>") > 0 then
+                  Fin_Set(Current_Component.all).Number_Of_Fins := Positive (Extract_Float (Current_Line, "FinCount"));
+               elsif Index (Current_Line, "<RootChord>") > 0 then
+                  Fin_Set(Current_Component.all).Root_Chord := Extract_Float (Current_Line, "RootChord");
+               elsif Index (Current_Line, "<TipChord>") > 0 then
+                  Fin_Set(Current_Component.all).Tip_Chord := Extract_Float (Current_Line, "TipChord");
+               elsif Index (Current_Line, "<Sweep>") > 0 then
+                  Fin_Set(Current_Component.all).Sweep_Length := Extract_Float (Current_Line, "Sweep");
+               elsif Index (Current_Line, "<Span>") > 0 then
+                  Fin_Set(Current_Component.all).Span := Extract_Float (Current_Line, "Span");
+               elsif Index (Current_Line, "<Thickness>") > 0 then
+                  Fin_Set(Current_Component.all).Thickness := Extract_Float (Current_Line, "Thickness");
                end if;
             end if;
          end;
