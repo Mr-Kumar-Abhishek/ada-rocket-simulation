@@ -55,4 +55,18 @@ package body Components is
       return This.Length / 2.0; -- Center of the tube
    end Get_CG;
 
+   -- Nose_Cone (Solid conical approximation for simplicity)
+   overriding function Get_Mass (This : Nose_Cone) return Float is
+      Pi : constant Float := 3.14159265;
+      Volume : Float;
+   begin
+      Volume := Pi * (This.Base_Diameter / 2.0)**2 * This.Length / 3.0;
+      return Volume * This.Density;
+   end Get_Mass;
+
+   overriding function Get_CG (This : Nose_Cone) return Float is
+   begin
+      return This.Length * 0.75; -- CG of a solid cone from the tip
+   end Get_CG;
+
 end Components;

@@ -47,4 +47,13 @@ package Components is
    overriding function Get_Mass (This : Body_Tube) return Float;
    overriding function Get_CG (This : Body_Tube) return Float;
 
+   type Nose_Cone is new Component with record
+      Length         : Float;
+      Base_Diameter  : Float;
+      Density        : Float;
+   end record;
+
+   overriding function Get_Mass (This : Nose_Cone) return Float;
+   overriding function Get_CG (This : Nose_Cone) return Float;
+
 end Components;
