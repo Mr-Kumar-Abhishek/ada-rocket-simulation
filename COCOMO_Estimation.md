@@ -53,20 +53,20 @@ Assuming an average loaded salary for an Ada Software Engineer of **$10,000 USD*
 
 *Note: These estimates cover the development phase up to initial delivery and do not account for long-term maintenance or post-release expansions.*
 
-## 5. Current Phase Actuals (Sprints 1 to 4)
+## 5. Current Phase Actuals (Sprints 1 to 5)
 
-As of the current sprints (covering Core Math, Components, Aerodynamics including Barrowman Fin logic, Motor Subsystem, Flight Loop, Recovery Systems, and XML Parser), the codebase size is roughly **1.01 KLOC** (1008 lines). Applying the COCOMO formula retrospectively:
+As of the current sprints (covering Core Math and Quaternions, Components, Aerodynamics including Barrowman Fin logic, Motor Subsystem, 6-DOF Flight Loop, Recovery Systems, and robust XML/RASP Parsers), the codebase size is roughly **1.42 KLOC** (1418 lines). Applying the COCOMO formula retrospectively:
 
 1. **Effort (E)**:
-   `E = 2.4 * (1.01)^1.05`
-   `E ≈ 2.4 * 1.010`
-   **E ≈ 2.42 Person-Months**
+   `E = 2.4 * (1.42)^1.05`
+   `E ≈ 2.4 * 1.446`
+   **E ≈ 3.47 Person-Months**
 
 2. **Time (Tdev)**:
-   `Tdev = 2.5 * (2.42)^0.38`
-   `Tdev ≈ 2.5 * 1.397`
-   **Tdev ≈ 3.49 Months**
+   `Tdev = 2.5 * (3.47)^0.38`
+   `Tdev ≈ 2.5 * 1.60`
+   **Tdev ≈ 4.0 Months**
 
 3. **Cost Estimation**:
-   - `2.42 Person-Months * $10,000 USD/Month`
-   - **Cost for current codebase**: **$24,200 USD**
+   - `3.47 Person-Months * $10,000 USD/Month`
+   - **Cost for current codebase**: **$34,700 USD**
