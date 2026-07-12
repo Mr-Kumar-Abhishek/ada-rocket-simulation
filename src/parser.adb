@@ -47,13 +47,13 @@ package body Parser is
                Parsing_Body_Tube := False;
                Current_Component := new Nose_Cone;
                Current_Component.Name := "Nose Cone                       ";
-               Current_Component.Density := 200.0;
+               Nose_Cone(Current_Component.all).Density := 200.0;
             elsif Index (Current_Line, "<BodyTube>") > 0 then
                Parsing_Body_Tube := True;
                Parsing_Nose_Cone := False;
                Current_Component := new Body_Tube;
                Current_Component.Name := "Body Tube                       ";
-               Current_Component.Density := 1000.0;
+               Body_Tube(Current_Component.all).Density := 1000.0;
             end if;
 
             --  Extract properties if inside a component
