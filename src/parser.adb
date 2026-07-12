@@ -15,8 +15,7 @@ package body Parser is
       Parsing_Nose_Cone : Boolean := False;
       Parsing_Body_Tube : Boolean := False;
 
-      NC : access Nose_Cone;
-      BT : access Body_Tube;
+      Current_Component : Component_Access := null;
 
       --  Helper to extract a float value from a tag line
       function Extract_Float
@@ -26,7 +25,7 @@ package body Parser is
          Start_Idx : Natural := Index (Text, "<" & Tag & ">");
          End_Idx   : Natural := Index (Text, "</" & Tag & ">");
       begin
-         if Start_Idx > 0 and End_Idx > Start_Idx then
+         if Start_Idx > 0 and then End_Idx > Start_Idx then
             Start_Idx := Start_Idx + Tag'Length + 2;
             return Float'Value (Text (Start_Idx .. End_Idx - 1));
          end if;
@@ -46,35 +45,33 @@ package body Parser is
             if Index (Current_Line, "<NoseCone>") > 0 then
                Parsing_Nose_Cone := True;
                Parsing_Body_Tube := False;
-               NC := new Nose_Cone;
-               NC.Name := "Nose Cone                       ";
-               NC.Density := 200.0;
-               Rocket := Component_Access (NC);
+               Current_Component := new Nose_Cone;
+               Current_Component.Name := "Nose Cone                       ";
+               Current_Component.Density := 200.0;
             elsif Index (Current_Line, "<BodyTube>") > 0 then
                Parsing_Body_Tube := True;
                Parsing_Nose_Cone := False;
-               BT := new Body_Tube;
-               BT.Name := "Body Tube                       ";
-               BT.Density := 1000.0;
-               Rocket := Component_Access (BT);
+               Current_Component := new Body_Tube;
+               Current_Component.Name := "Body Tube                       ";
+               Current_Component.Density := 1000.0;
             end if;
 
             --  Extract properties if inside a component
-            if Parsing_Nose_Cone and then NC /= null then
+            if Parsing_Nose_Cone and then Current_Component /= null then
                if Index (Current_Line, "<Length>") > 0 then
-                  NC.Length := Extract_Float (Current_Line, "Length");
+                  Nose_Cone(Current_Component.all).Length := Extract_Float (Current_Line, "Length");
                elsif Index (Current_Line, "<BaseDiameter>") > 0 then
-                  NC.Base_Diameter :=
+                  Nose_Cone(Current_Component.all).Base_Diameter :=
                     Extract_Float (Current_Line, "BaseDiameter");
                end if;
-            elsif Parsing_Body_Tube and then BT /= null then
+            elsif Parsing_Body_Tube and then Current_Component /= null then
                if Index (Current_Line, "<Length>") > 0 then
-                  BT.Length := Extract_Float (Current_Line, "Length");
+                  Body_Tube(Current_Component.all).Length := Extract_Float (Current_Line, "Length");
                elsif Index (Current_Line, "<OuterDiameter>") > 0 then
-                  BT.Outer_Diameter :=
+                  Body_Tube(Current_Component.all).Outer_Diameter :=
                     Extract_Float (Current_Line, "OuterDiameter");
                elsif Index (Current_Line, "<InnerDiameter>") > 0 then
-                  BT.Inner_Diameter :=
+                  Body_Tube(Current_Component.all).Inner_Diameter :=
                     Extract_Float (Current_Line, "InnerDiameter");
                end if;
             end if;
@@ -82,6 +79,7 @@ package body Parser is
       end loop;
 
       Close (File);
+      Rocket := Current_Component;
    end Load_Rocket;
 
 end Parser;
