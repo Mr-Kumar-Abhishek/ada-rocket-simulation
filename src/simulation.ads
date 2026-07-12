@@ -7,9 +7,11 @@ with Motors; use Motors;
 package Simulation is
 
    type State is record
-      Position : Vector_3D;
-      Velocity : Vector_3D;
-      Time     : Float;
+      Position         : Math.Vector_3D;
+      Velocity         : Math.Vector_3D;
+      Orientation      : Math.Quaternion;
+      Angular_Velocity : Math.Vector_3D;
+      Time             : Float;
    end record;
 
    -- Simple Euler numerical integration step

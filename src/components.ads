@@ -21,10 +21,12 @@ package Components is
    -- Abstract methods that must be overridden
    function Get_Mass (This : Component) return Float is abstract;
    function Get_CG (This : Component) return Float is abstract;
+   function Get_MOI (This : Component) return Float is abstract;
 
    -- Recursive calculation methods
    function Get_Total_Mass (This : Component'Class) return Float;
    function Get_Total_CG (This : Component'Class) return Float;
+   function Get_Total_MOI (This : Component'Class) return Float;
 
    -- Modifiers
    procedure Add_Child (This : in out Component'Class; Child : Component_Access);
@@ -37,6 +39,7 @@ package Components is
 
    overriding function Get_Mass (This : Mass_Object) return Float;
    overriding function Get_CG (This : Mass_Object) return Float;
+   overriding function Get_MOI (This : Mass_Object) return Float;
 
    type Body_Tube is new Component with record
       Length         : Float;
@@ -47,6 +50,7 @@ package Components is
 
    overriding function Get_Mass (This : Body_Tube) return Float;
    overriding function Get_CG (This : Body_Tube) return Float;
+   overriding function Get_MOI (This : Body_Tube) return Float;
 
    type Nose_Cone is new Component with record
       Length         : Float;
@@ -56,6 +60,7 @@ package Components is
 
    overriding function Get_Mass (This : Nose_Cone) return Float;
    overriding function Get_CG (This : Nose_Cone) return Float;
+   overriding function Get_MOI (This : Nose_Cone) return Float;
 
    type Engine_Mount is new Component with record
       Length         : Float;
@@ -69,6 +74,7 @@ package Components is
 
    overriding function Get_Mass (This : Engine_Mount) return Float;
    overriding function Get_CG (This : Engine_Mount) return Float;
+   overriding function Get_MOI (This : Engine_Mount) return Float;
 
    type Parachute is new Component with record
       Diameter         : Float;
@@ -79,6 +85,7 @@ package Components is
 
    overriding function Get_Mass (This : Parachute) return Float;
    overriding function Get_CG (This : Parachute) return Float;
+   overriding function Get_MOI (This : Parachute) return Float;
 
    type Fin_Set is new Component with record
       Number_Of_Fins : Positive := 3;
@@ -92,5 +99,6 @@ package Components is
 
    overriding function Get_Mass (This : Fin_Set) return Float;
    overriding function Get_CG (This : Fin_Set) return Float;
+   overriding function Get_MOI (This : Fin_Set) return Float;
 
 end Components;
