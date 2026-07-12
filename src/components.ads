@@ -4,7 +4,7 @@ with Motors;
 
 package Components is
 
-   type Component is abstract tagged private;
+   type Component;
    type Component_Access is access all Component'Class;
 
    package Component_Vectors is new Ada.Containers.Vectors
