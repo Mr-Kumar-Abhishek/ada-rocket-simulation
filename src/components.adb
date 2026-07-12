@@ -1,6 +1,6 @@
 package body Components is
 
-   function Get_Total_Mass (This : Component) return Float is
+   function Get_Total_Mass (This : Component'Class) return Float is
       Total : Float := This.Get_Mass;
    begin
       for Child of This.Children loop
@@ -9,7 +9,7 @@ package body Components is
       return Total;
    end Get_Total_Mass;
 
-   function Get_Total_CG (This : Component) return Float is
+   function Get_Total_CG (This : Component'Class) return Float is
       Total_Mass : Float := Get_Total_Mass (This);
       Moment     : Float := This.Get_Mass * This.Get_CG;
    begin
@@ -25,7 +25,7 @@ package body Components is
       return Moment / Total_Mass;
    end Get_Total_CG;
 
-   procedure Add_Child (This : in out Component; Child : Component_Access) is
+   procedure Add_Child (This : in out Component'Class; Child : Component_Access) is
    begin
       This.Children.Append (Child);
    end Add_Child;

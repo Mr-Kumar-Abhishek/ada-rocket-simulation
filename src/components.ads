@@ -23,11 +23,11 @@ package Components is
    function Get_CG (This : Component) return Float is abstract;
 
    -- Recursive calculation methods
-   function Get_Total_Mass (This : Component) return Float;
-   function Get_Total_CG (This : Component) return Float;
+   function Get_Total_Mass (This : Component'Class) return Float;
+   function Get_Total_CG (This : Component'Class) return Float;
 
    -- Modifiers
-   procedure Add_Child (This : in out Component; Child : Component_Access);
+   procedure Add_Child (This : in out Component'Class; Child : Component_Access);
 
    -- Concrete Components
    type Mass_Object is new Component with record
